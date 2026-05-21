@@ -231,7 +231,16 @@
     display:flex;gap:11px;align-items:flex-start;
   }
   .qcard .qgrip{color:var(--line);font-size:16px;line-height:1;padding-top:2px;cursor:grab;}
-  .qcard .qbody{flex:1;min-width:0;}
+  .qcard .qbody{flex:1;min-width:0;cursor:pointer;}
+  .qmove{display:flex;flex-direction:column;gap:4px;flex:0 0 26px;}
+  .qmove button{
+    width:26px;height:21px;border:1px solid var(--line);background:#fff;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+  }
+  .qmove button svg{width:13px;height:13px;stroke:var(--green);}
+  .qmove button:disabled{opacity:.35;cursor:default;}
+  .qedit{flex:0 0 auto;border:0;background:transparent;cursor:pointer;padding:3px;align-self:center;}
+  .qedit svg{width:16px;height:16px;stroke:var(--gold);}
   .qcard .qtype{
     font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);font-weight:800;
   }
@@ -1237,7 +1246,7 @@
         <div class="sheet-overlay" id="addSheet">
           <div class="sheet">
             <div class="sheet-grip"></div>
-            <h3 class="serif">Add a Question</h3>
+            <h3 class="serif" id="sheetTitle">Add a Question</h3>
             <div style="font-size:11.5px;color:#857f70;">Choose how judges answer this item.</div>
             <div class="typegrid">
               <div class="typechip active" onclick="pickType(this,'deduct')">
@@ -1263,7 +1272,8 @@
               <label>Maximum Points</label>
               <input type="number" id="qMaxInput" placeholder="e.g. 10" />
             </div>
-            <button class="btn btn-primary" onclick="addQuestion()">Add to Form</button>
+            <button class="btn btn-primary" id="sheetSaveBtn" onclick="saveQuestion()">Add to Form</button>
+            <button class="btn" id="sheetDeleteBtn" style="display:none;margin-top:9px;background:#f3e2dc;color:#a8462f;" onclick="deleteQuestion()">Delete Question</button>
             <button class="btn btn-ghost" style="margin-top:9px;" onclick="closeSheet()">Cancel</button>
           </div>
         </div>
@@ -1353,33 +1363,122 @@
       : 'Judges award points for each question; the app adds them together to produce the total score.';
   }
   var sheetType='deduct';
-  function openSheet(){ document.getElementById('addSheet').classList.add('show'); }
-  function closeSheet(){ document.getElementById('addSheet').classList.remove('show'); }
-  function pickType(el,t){
-    sheetType=t;
-    document.querySelectorAll('.typechip').forEach(function(c){ c.classList.remove('active'); });
-    el.classList.add('active');
+  var editIndex=-1;
+  var TYPE_NAMES={deduct:'Deduction',points:'Points',scale:'Rating 1–10',choice:'Multiple Choice',yesno:'Yes / No',note:'Free Text',photo:'Photo'};
+  var TYPE_ORDER=['deduct','points','scale','choice','yesno','note','photo'];
+  var GEN_SCORED='Affects the calculated score';
+  var GEN_INFO='Informational — does not affect score';
+  var builderQuestions=[
+    {type:'deduct',label:'Authenticity & Correctness',meta:'Period-correct components, finishes & markings',max:'25'},
+    {type:'deduct',label:'Paint & Finish',meta:'Body finish quality, preparation & consistency',max:'20'},
+    {type:'deduct',label:'Brightwork & Chrome',meta:'Plating, trim, glass & lamps',max:'15'},
+    {type:'deduct',label:'Interior & Upholstery',meta:'Seats, trim, instruments & headliner',max:'15'},
+    {type:'deduct',label:'Engine Compartment',meta:'Cleanliness, correctness & detailing',max:'15'},
+    {type:'deduct',label:'Operation & Roadworthiness',meta:'Starts, runs & functions on the drive line',max:'10'},
+    {type:'yesno',label:'Ownership & provenance documents shown?',meta:GEN_INFO,max:'—'}
+  ];
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function isScored(t){ return t==='deduct'||t==='points'||t==='scale'; }
+
+  function renderBuilder(){
+    var box=document.getElementById('builderQuestions');
+    if(!box) return;
+    var up='<svg viewBox="0 0 24 24" class="ic"><path d="M18 15l-6-6-6 6"/></svg>';
+    var down='<svg viewBox="0 0 24 24" class="ic"><path d="M6 9l6 6 6-6"/></svg>';
+    var pen='<svg viewBox="0 0 24 24" class="ic"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+    box.innerHTML='';
+    builderQuestions.forEach(function(q,i){
+      var card=document.createElement('div');
+      card.className='qcard';
+      card.innerHTML=
+        '<div class="qmove">'
+        +'<button onclick="moveQuestion('+i+',-1)"'+(i===0?' disabled':'')+'>'+up+'</button>'
+        +'<button onclick="moveQuestion('+i+',1)"'+(i===builderQuestions.length-1?' disabled':'')+'>'+down+'</button>'
+        +'</div>'
+        +'<div class="qbody" onclick="editQuestion('+i+')">'
+        +'<div class="qtype">'+TYPE_NAMES[q.type]+'</div>'
+        +'<div class="qlabel">'+esc(q.label)+'</div>'
+        +'<div class="qmeta">'+esc(q.meta)+'</div>'
+        +'</div>'
+        +'<div class="qmax">'+esc(q.max||'—')+'</div>'
+        +'<button class="qedit" onclick="editQuestion('+i+')">'+pen+'</button>';
+      box.appendChild(card);
+    });
+    var pts=0;
+    builderQuestions.forEach(function(q){ var n=parseInt(q.max,10); if(!isNaN(n)) pts+=n; });
+    document.getElementById('qcount').textContent=builderQuestions.length+' items · '+pts+' pts';
   }
-  function addQuestion(){
-    var label=document.getElementById('qLabelInput').value.trim()||'New question';
-    var pts=document.getElementById('qMaxInput').value.trim();
-    var typeNames={deduct:'Deduction',points:'Points',scale:'Rating 1–10',choice:'Multiple Choice',yesno:'Yes / No',note:'Free Text',photo:'Photo'};
-    var scored=(sheetType==='deduct'||sheetType==='points'||sheetType==='scale');
-    var card=document.createElement('div');
-    card.className='qcard';
-    card.innerHTML='<div class="qgrip">⠿</div><div class="qbody">'
-      +'<div class="qtype">'+typeNames[sheetType]+'</div>'
-      +'<div class="qlabel">'+label+'</div>'
-      +'<div class="qmeta">'+(scored?'Affects the calculated score':'Informational — does not affect score')+'</div>'
-      +'</div><div class="qmax">'+(scored&&pts?pts:'—')+'</div>';
-    document.getElementById('builderQuestions').appendChild(card);
-    var n=document.querySelectorAll('#builderQuestions .qcard').length;
-    document.getElementById('qcount').textContent=n+' items';
+
+  function moveQuestion(i,dir){
+    var j=i+dir;
+    if(j<0||j>=builderQuestions.length) return;
+    var tmp=builderQuestions[i]; builderQuestions[i]=builderQuestions[j]; builderQuestions[j]=tmp;
+    renderBuilder();
+    toast('Question reordered');
+  }
+
+  function setSheetType(t){
+    sheetType=t;
+    document.querySelectorAll('.typechip').forEach(function(c,i){
+      c.classList.toggle('active', TYPE_ORDER[i]===t);
+    });
+  }
+  function pickType(el,t){ setSheetType(t); }
+
+  function openSheet(){
+    editIndex=-1;
+    setSheetType('deduct');
     document.getElementById('qLabelInput').value='';
     document.getElementById('qMaxInput').value='';
+    document.getElementById('sheetTitle').textContent='Add a Question';
+    document.getElementById('sheetSaveBtn').textContent='Add to Form';
+    document.getElementById('sheetDeleteBtn').style.display='none';
+    document.getElementById('addSheet').classList.add('show');
+  }
+  function closeSheet(){ document.getElementById('addSheet').classList.remove('show'); }
+
+  function editQuestion(i){
+    editIndex=i;
+    var q=builderQuestions[i];
+    setSheetType(q.type);
+    document.getElementById('qLabelInput').value=q.label;
+    document.getElementById('qMaxInput').value=(q.max&&q.max!=='—')?q.max:'';
+    document.getElementById('sheetTitle').textContent='Edit Question';
+    document.getElementById('sheetSaveBtn').textContent='Save Changes';
+    document.getElementById('sheetDeleteBtn').style.display='block';
+    document.getElementById('addSheet').classList.add('show');
+  }
+
+  function deleteQuestion(){
+    if(editIndex<0) return;
+    builderQuestions.splice(editIndex,1);
+    editIndex=-1;
+    renderBuilder();
     closeSheet();
-    toast('Question added to the form');
-    if(card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'center'});
+    toast('Question removed');
+  }
+
+  function saveQuestion(){
+    var label=document.getElementById('qLabelInput').value.trim()||'Untitled question';
+    var pts=document.getElementById('qMaxInput').value.trim();
+    var scored=isScored(sheetType);
+    var max=(scored&&pts)?pts:'—';
+    if(editIndex>=0){
+      var q=builderQuestions[editIndex];
+      q.type=sheetType; q.label=label; q.max=max;
+      if(q.meta===GEN_SCORED||q.meta===GEN_INFO){ q.meta=scored?GEN_SCORED:GEN_INFO; }
+      renderBuilder();
+      closeSheet();
+      toast('Question updated');
+    } else {
+      builderQuestions.push({type:sheetType,label:label,max:max,meta:scored?GEN_SCORED:GEN_INFO});
+      renderBuilder();
+      closeSheet();
+      toast('Question added to the form');
+      var cards=document.querySelectorAll('#builderQuestions .qcard');
+      var last=cards[cards.length-1];
+      if(last&&last.scrollIntoView) last.scrollIntoView({behavior:'smooth',block:'center'});
+    }
   }
 
   /* ---------- assign ---------- */
@@ -1469,6 +1568,7 @@
   /* ---------- init ---------- */
   DEDS.forEach(function(id){ paintSlider(document.getElementById(id)); });
   recalc();
+  renderBuilder();
 </script>
 
 </body>

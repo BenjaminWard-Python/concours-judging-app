@@ -1,6 +1,6 @@
 /* Concours d'Elegance judging app — concept prototype service worker.
    Caches the prototype so it loads instantly and works fully offline. */
-const CACHE = 'concours-concept-v1';
+const CACHE = 'concours-concept-v2';
 const ASSETS = [
   './',
   'index.html',
