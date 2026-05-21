@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Concours d'Elegance — Digital Judging</title>
+<meta name="theme-color" content="#15281f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Concours Judge" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(900px 500px at 50% -10%, #244234 0%, transparent 60%),
+               linear-gradient(180deg,#172a21,#10201a);
+    color:#e9e4d6;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:40px 20px;
+  }
+  .wrap{max-width:540px;width:100%;text-align:center;}
+  .eyebrow{font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:#d8b878;margin-bottom:12px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:32px;line-height:1.22;color:#fdfaf0;margin-bottom:14px;}
+  .lede{color:#b9c4ba;font-size:14px;line-height:1.65;}
+  .cards{display:flex;flex-direction:column;gap:14px;margin:30px 0 22px;}
+  a.card{
+    display:flex;align-items:center;gap:15px;text-align:left;text-decoration:none;
+    background:rgba(255,255,255,.04);border:1px solid rgba(216,184,120,.25);
+    border-radius:16px;padding:17px;transition:.15s;
+  }
+  a.card:hover{background:rgba(255,255,255,.07);border-color:rgba(216,184,120,.55);}
+  .ico{
+    width:52px;height:52px;flex:0 0 52px;border-radius:13px;
+    background:linear-gradient(150deg,#1f4435,#15281f);border:1px solid rgba(216,184,120,.3);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .ico svg{width:25px;height:25px;stroke:#d8b878;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  .txt{flex:1;min-width:0;}
+  .txt .t{font-weight:700;font-size:15px;color:#fdfaf0;}
+  .txt .s{font-size:12px;color:#9aa89c;margin-top:3px;line-height:1.5;}
+  .go{color:#d8b878;font-size:22px;font-family:Georgia,serif;}
+  .badge{
+    display:inline-block;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+    background:rgba(216,184,120,.18);color:#d8b878;padding:3px 7px;border-radius:999px;margin-left:5px;
+    vertical-align:middle;
+  }
+  .note{
+    font-size:11.5px;color:#7e8d80;line-height:1.6;
+    border-top:1px solid rgba(255,255,255,.07);padding-top:18px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">Concept Prototype</div>
+    <h1>Concours d'Elegance<br/>Digital Judging</h1>
+    <p class="lede">An interactive mockup of a field-judging app — the head judge builds and
+       assigns scoring forms; walking judges score cars on a phone instead of a paper clipboard.</p>
+
+    <div class="cards">
+      <a class="card" href="phone.html">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18.5h2"/></svg></div>
+        <div class="txt">
+          <div class="t">Open the phone version<span class="badge">Best for review</span></div>
+          <div class="s">Full-screen. On a phone, use your browser's "Add to Home Screen" to install it as an app.</div>
+        </div>
+        <div class="go">&rsaquo;</div>
+      </a>
+      <a class="card" href="prototype.html">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="txt">
+          <div class="t">Open the laptop version</div>
+          <div class="s">The app shown inside a phone frame — best for screen-sharing on a call.</div>
+        </div>
+        <div class="go">&rsaquo;</div>
+      </a>
+    </div>
+
+    <p class="note">This is a concept prototype with sample data, not finished software.
+       It works fully offline once loaded.</p>
+  </div>
+</body>
+</html>

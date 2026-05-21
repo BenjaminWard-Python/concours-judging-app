@@ -1,0 +1,16 @@
+{
+  "name": "Concours d'Elegance — Digital Judging",
+  "short_name": "Concours Judge",
+  "description": "Concept prototype of the Concours d'Elegance field-judging app — replacing judges' paper clipboards.",
+  "start_url": "phone.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#11201a",
+  "theme_color": "#15281f",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
