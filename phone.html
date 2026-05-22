@@ -495,6 +495,17 @@
   .legend .lh{color:var(--gold-light);font-size:11px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
   .legend .ld{color:#aab6 aa;color:#a9b4a9;font-size:10.5px;line-height:1.5;}
   .footnote{text-align:center;color:#7e8d80;font-size:11px;margin:20px auto 0;max-width:420px;line-height:1.6;}
+  .attach-row{padding:10px 2px;cursor:pointer;border-bottom:1px solid var(--line);}
+  .attach-row:last-child{border-bottom:0;}
+  .attach-row:active{opacity:.55;}
+  .attach-end{display:flex;align-items:center;gap:7px;}
+  .flash-hl{animation:flashpulse 1.7s ease-out;border-radius:10px;}
+  @keyframes flashpulse{
+    0%{box-shadow:0 0 0 0 rgba(184,146,74,0);}
+    12%{box-shadow:0 0 0 4px rgba(184,146,74,.6);}
+    70%{box-shadow:0 0 0 4px rgba(184,146,74,.32);}
+    100%{box-shadow:0 0 0 0 rgba(184,146,74,0);}
+  }
 </style>
 </head>
 <body>
@@ -1130,7 +1141,7 @@
                 </div>
 
                 <div class="section-label">Overall Notes for the Head Judge</div>
-                <div class="qscore">
+                <div class="qscore" id="overall-note">
                   <textarea style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px;font-family:inherit;font-size:12.5px;resize:none;min-height:78px;color:var(--ink);background:#fbf9f3;" placeholder="Free-text observations, award suggestions, anything worth flagging…">Exceptional, highly original car. Would put it forward for the Preservation award — recommend a second look from the engine judge.</textarea>
                   <div class="photos" id="ph-overall">
                     <div class="photo-thumb"><svg viewBox="0 0 24 24" class="ic"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
@@ -1167,17 +1178,17 @@
 
               <div class="section-label">Attachments &amp; Notes</div>
               <div class="card">
-                <div class="between" style="padding:6px 0;">
+                <div class="between attach-row" onclick="goToScore('n-paint')">
                   <span style="font-size:13px;color:var(--ink);">Category notes</span>
-                  <span class="pill grey" id="noteCount">1 note</span>
+                  <span class="attach-end"><span class="pill grey" id="noteCount">1 note</span><svg viewBox="0 0 24 24" class="ic chev"><path d="M9 6l6 6-6 6"/></svg></span>
                 </div>
-                <div class="between" style="padding:6px 0;">
+                <div class="between attach-row" onclick="goToScore('ph-paint')">
                   <span style="font-size:13px;color:var(--ink);">Reference photos</span>
-                  <span class="pill grey">1 photo</span>
+                  <span class="attach-end"><span class="pill grey">1 photo</span><svg viewBox="0 0 24 24" class="ic chev"><path d="M9 6l6 6-6 6"/></svg></span>
                 </div>
-                <div class="between" style="padding:6px 0;">
+                <div class="between attach-row" onclick="goToScore('overall-note')">
                   <span style="font-size:13px;color:var(--ink);">Overall note to head judge</span>
-                  <span class="pill green">Added</span>
+                  <span class="attach-end"><span class="pill green">Added</span><svg viewBox="0 0 24 24" class="ic chev"><path d="M9 6l6 6-6 6"/></svg></span>
                 </div>
               </div>
 
@@ -1557,6 +1568,23 @@
     });
     document.getElementById('reviewRows').innerHTML=html;
     document.getElementById('reviewTotal').textContent=Math.max(0,100-total);
+  }
+
+  /* ---------- review: jump to a note or photo ---------- */
+  function goToScore(targetId){
+    go('v-wj-score');
+    var el=document.getElementById(targetId);
+    if(!el) return;
+    setTimeout(function(){
+      if(el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'center'});
+      flashEl(el);
+    },80);
+  }
+  function flashEl(el){
+    el.classList.remove('flash-hl');
+    void el.offsetWidth;
+    el.classList.add('flash-hl');
+    setTimeout(function(){ el.classList.remove('flash-hl'); },1800);
   }
 
   /* ---------- init ---------- */
