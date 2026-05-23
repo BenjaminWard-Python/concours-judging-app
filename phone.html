@@ -534,6 +534,9 @@
   .jc-cl{font-size:10.5px;color:var(--muted);margin-top:1px;}
   .jc-score{font-family:Georgia,serif;font-size:18px;font-weight:700;color:var(--green);}
   .jempty{text-align:center;color:var(--muted);font-size:12px;padding:18px;background:#fff;border:1px dashed var(--line);border-radius:13px;}
+  .jcomplete-tap{cursor:pointer;}
+  .jcomplete-tap:active{transform:scale(.99);}
+  .sheet-note{font-size:13px;color:var(--ink);line-height:1.65;}
 </style>
 </head>
 <body>
@@ -857,6 +860,10 @@
               <div style="font-size:11.5px;color:var(--muted);margin:-3px 2px 11px;line-height:1.5;">
                 Every judge and the forms they hold. Tap a judge to see their assigned forms and completed results.
               </div>
+              <button class="btn btn-ghost" style="margin-bottom:11px;" onclick="openJudgeSheet()">
+                <svg viewBox="0 0 24 24" class="ic"><path d="M12 5v14M5 12h14"/></svg>
+                Add Judge
+              </button>
               <div id="judgesList"></div>
 
               <div style="height:12px;"></div>
@@ -959,6 +966,28 @@
               <div id="judgeForms"></div>
               <div class="section-label">Completed Scoresheets</div>
               <div id="judgeCompleted"></div>
+              <div style="height:14px;"></div>
+            </div>
+          </div>
+
+          <!-- ============ ADMIN: VIEW SCORESHEET ============ -->
+          <div class="view" id="v-hj-sheet">
+            <div class="appbar">
+              <button class="iconbtn" onclick="go('v-hj-judge')">
+                <svg viewBox="0 0 24 24" class="ic"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="ab-title"><div class="t" id="sheetCar">Scoresheet</div><div class="s" id="sheetBy">Scored by …</div></div>
+              <span style="width:34px;"></span>
+            </div>
+            <div class="scroll pad">
+              <div class="totalcard">
+                <div class="tn" id="sheetTotal">—</div>
+                <div class="tl">Final Score · out of 100</div>
+              </div>
+              <div class="section-label">Deduction Summary</div>
+              <div class="card" id="sheetRows"></div>
+              <div class="section-label">Judge's Note</div>
+              <div class="card" id="sheetNote"></div>
               <div style="height:14px;"></div>
             </div>
           </div>
@@ -1326,6 +1355,25 @@
 
         <div class="toast" id="toast"></div>
 
+        <!-- add-judge bottom sheet -->
+        <div class="sheet-overlay" id="addJudgeSheet">
+          <div class="sheet">
+            <div class="sheet-grip"></div>
+            <h3 class="serif">Add a Judge</h3>
+            <div style="font-size:11.5px;color:#857f70;">Add a judge to the event roster.</div>
+            <div class="field" style="margin-top:12px;">
+              <label>Full Name</label>
+              <input type="text" id="judgeNameInput" placeholder="e.g. Thomas Reyes" />
+            </div>
+            <div class="field">
+              <label>Title / Specialty</label>
+              <input type="text" id="judgeRoleInput" placeholder="e.g. Judge · Interiors" />
+            </div>
+            <button class="btn btn-primary" onclick="addJudge()">Add to Roster</button>
+            <button class="btn btn-ghost" style="margin-top:9px;" onclick="closeJudgeSheet()">Cancel</button>
+          </div>
+        </div>
+
         <!-- add-question bottom sheet -->
         <div class="sheet-overlay" id="addSheet">
           <div class="sheet">
@@ -1669,7 +1717,7 @@
       forms:[{name:'Postwar Classic — Full Judging',type:'Deduction',cars:6,done:0}],
       completed:[]},
     {id:'henry',name:'Henry Castellan',initials:'HC',role:'Chief Class Judge · European Sports',
-      forms:[{name:'Sports & Racing — Preservation',type:'Additive',cars:4,done:2},
+      forms:[{name:'Sports & Racing — Preservation',type:'Deduction',cars:4,done:2},
              {name:"People's Choice Ballot",type:'Additive',cars:12,done:5}],
       completed:[
         {car:'1961 Jaguar E-Type Series 1',cls:'European Sports',score:'95.0'},
@@ -1730,23 +1778,104 @@
         +'<div class="miniprog"><span style="width:'+pct+'%"></span></div>'
         +'<div class="jform-prog-label">'+f.done+' of '+f.cars+' cars scored</div></div>';
     });
+    if(!fhtml) fhtml='<div class="jempty">No forms assigned yet.</div>';
     document.getElementById('judgeForms').innerHTML=fhtml;
     var chk='<svg viewBox="0 0 24 24" class="ic"><path d="M5 13l4 4L19 7"/></svg>';
-    var chtml='';
+    var chev='<svg viewBox="0 0 24 24" class="ic chev"><path d="M9 6l6 6-6 6"/></svg>';
+    var box=document.getElementById('judgeCompleted');
     if(j.completed.length===0){
-      chtml='<div class="jempty">No scoresheets submitted yet.</div>';
+      box.innerHTML='<div class="jempty">No scoresheets submitted yet.</div>';
     } else {
+      var chtml='';
       j.completed.forEach(function(c){
-        chtml+='<div class="jcomplete"><div class="jc-tick">'+chk+'</div>'
+        chtml+='<div class="jcomplete jcomplete-tap"><div class="jc-tick">'+chk+'</div>'
           +'<div class="jc-car"><div class="jc-cn">'+esc(c.car)+'</div>'
           +'<div class="jc-cl">'+esc(c.cls)+'</div></div>'
-          +'<div class="jc-score">'+esc(c.score)+'</div></div>';
+          +'<div class="jc-score">'+esc(c.score)+'</div>'+chev+'</div>';
+      });
+      box.innerHTML=chtml;
+      box.querySelectorAll('.jcomplete-tap').forEach(function(row,ci){
+        row.addEventListener('click',function(){ openScoresheet(j.id,ci); });
       });
     }
-    document.getElementById('judgeCompleted').innerHTML=chtml;
     go('v-hj-judge');
     var at=document.querySelector('#tabsAdmin .tab[data-go="v-hj-assign"]');
     if(at) at.classList.add('active');
+  }
+
+  /* ---------- view a completed scoresheet ---------- */
+  var SHEET_CATS=[
+    {label:'Authenticity & Correctness',max:25},
+    {label:'Paint & Finish',max:20},
+    {label:'Brightwork & Chrome',max:15},
+    {label:'Interior & Upholstery',max:15},
+    {label:'Engine Compartment',max:15},
+    {label:'Operation & Roadworthiness',max:10}
+  ];
+  var SHEET_NOTES=[
+    "Beautifully presented and highly original. Points taken only for very minor finish details — an exceptional car.",
+    "A strong, honest example. Light wear consistent with careful use; nothing incorrect or structural.",
+    "Well restored and correct throughout. A few brightwork and paint details kept it from a perfect card.",
+    "Mechanically excellent and authentic. Minor interior and engine-bay detailing noted for the record."
+  ];
+  function sheetSeed(s){ var n=0; for(var i=0;i<s.length;i++){ n=(n*31+s.charCodeAt(i))%2147483647; } return n; }
+  function scoreBreakdown(carName,total){
+    var cats=SHEET_CATS.map(function(c){ return {label:c.label,max:c.max,ded:0}; });
+    var units=Math.round(total*2);
+    var seed=sheetSeed(carName)||1;
+    function rnd(){ seed=(seed*1103515245+12345)%2147483648; return seed/2147483648; }
+    var guard=0;
+    while(units>0 && guard<3000){
+      guard++;
+      var k=Math.floor(rnd()*6);
+      if(cats[k].ded < cats[k].max*2){ cats[k].ded++; units--; }
+    }
+    return cats.map(function(c){ return {label:c.label,max:c.max,ded:c.ded/2}; });
+  }
+  function fmtDed(d){ return d%1===0?String(d):d.toFixed(1); }
+  function openScoresheet(judgeId,idx){
+    var j=null;
+    JUDGES.forEach(function(x){ if(x.id===judgeId) j=x; });
+    if(!j||!j.completed[idx]) return;
+    var c=j.completed[idx];
+    var total=100-parseFloat(c.score);
+    document.getElementById('sheetCar').textContent=c.car;
+    document.getElementById('sheetBy').textContent='Scored by '+j.name+' · '+c.cls;
+    document.getElementById('sheetTotal').textContent=c.score;
+    var html='';
+    scoreBreakdown(c.car,total).forEach(function(r){
+      var z=r.ded===0;
+      html+='<div class="rev-row"><div class="rn">'+esc(r.label)
+        +'<small>max '+r.max+'</small></div>'
+        +'<div class="rv'+(z?' zero':'')+'">'+(z?'0':'−'+fmtDed(r.ded))+'</div></div>';
+    });
+    document.getElementById('sheetRows').innerHTML=html;
+    var note=SHEET_NOTES[sheetSeed(c.car)%SHEET_NOTES.length];
+    document.getElementById('sheetNote').innerHTML='<div class="sheet-note">'+esc(note)+'</div>';
+    go('v-hj-sheet');
+    var at=document.querySelector('#tabsAdmin .tab[data-go="v-hj-assign"]');
+    if(at) at.classList.add('active');
+  }
+  /* ---------- add a judge ---------- */
+  function judgeInitials(name){
+    var p=name.split(/\s+/).filter(Boolean);
+    var s=((p[0]||'').charAt(0)+((p[1]||'').charAt(0)||'')).toUpperCase();
+    return s||'?';
+  }
+  function openJudgeSheet(){
+    document.getElementById('judgeNameInput').value='';
+    document.getElementById('judgeRoleInput').value='';
+    document.getElementById('addJudgeSheet').classList.add('show');
+  }
+  function closeJudgeSheet(){ document.getElementById('addJudgeSheet').classList.remove('show'); }
+  function addJudge(){
+    var name=document.getElementById('judgeNameInput').value.trim();
+    if(!name){ toast("Enter the judge's name"); return; }
+    var role=document.getElementById('judgeRoleInput').value.trim()||'Judge';
+    JUDGES.push({id:'j'+Date.now(),name:name,initials:judgeInitials(name),role:role,forms:[],completed:[]});
+    renderJudges();
+    closeJudgeSheet();
+    toast('Judge added to the roster');
   }
 
   /* ---------- init ---------- */
