@@ -487,6 +487,34 @@
     70%{box-shadow:0 0 0 4px rgba(184,146,74,.32);}
     100%{box-shadow:0 0 0 0 rgba(184,146,74,0);}
   }
+  /* judges roster & detail */
+  .jlink{color:var(--green);cursor:pointer;font-weight:700;}
+  .jcard{display:flex;gap:12px;padding:13px;background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;cursor:pointer;align-items:flex-start;}
+  .jcard:active{transform:scale(.99);}
+  .jc-main{flex:1;min-width:0;}
+  .jc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .jc-name{font-weight:700;font-size:14px;color:var(--ink);}
+  .jc-role{font-size:11px;color:var(--muted);margin-top:1px;}
+  .jc-forms{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0;}
+  .fchip{font-size:10px;font-weight:700;color:#8a6a1f;background:#f6ecd6;padding:3px 9px;border-radius:999px;}
+  .jc-prog{display:flex;align-items:center;gap:9px;}
+  .jc-prog .miniprog{flex:1;margin-top:0;}
+  .jc-prog-label{font-size:10px;color:var(--muted);font-weight:700;white-space:nowrap;}
+  .ava-lg{width:54px;height:54px;flex:0 0 54px;font-size:19px;}
+  .jd-head{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+  .jform{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:10px;}
+  .jform-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .jform-name{font-weight:700;font-size:13px;color:var(--ink);}
+  .jform-sub{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .jform-prog-label{font-size:10.5px;color:var(--muted);margin-top:9px;}
+  .jcomplete{display:flex;align-items:center;gap:11px;padding:11px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;}
+  .jc-tick{width:30px;height:30px;flex:0 0 30px;border-radius:50%;background:#e4efe5;display:flex;align-items:center;justify-content:center;}
+  .jc-tick svg{width:15px;height:15px;stroke:var(--good);}
+  .jc-car{flex:1;min-width:0;}
+  .jc-cn{font-weight:700;font-size:12.5px;color:var(--ink);}
+  .jc-cl{font-size:10.5px;color:var(--muted);margin-top:1px;}
+  .jc-score{font-family:Georgia,serif;font-size:18px;font-weight:700;color:var(--green);}
+  .jempty{text-align:center;color:var(--muted);font-size:12px;padding:18px;background:#fff;border:1px dashed var(--line);border-radius:13px;}
 </style>
 </head>
 <body>
@@ -543,7 +571,7 @@
                     <div style="flex:1">
                       <div style="font-weight:700;color:var(--ink);font-size:14px;">Judging in progress</div>
                       <div class="muted" style="font-size:12px;margin-top:3px;line-height:1.5;">
-                        38 of 64 cars have a completed scoresheet. 9 judges active in the field.
+                        38 of 64 cars have a completed scoresheet. 6 judges active in the field.
                       </div>
                     </div>
                   </div>
@@ -551,7 +579,7 @@
 
                 <div class="statgrid">
                   <div class="stat"><b>4</b><span>Forms</span></div>
-                  <div class="stat"><b>9</b><span>Judges</span></div>
+                  <div class="stat"><b>6</b><span>Judges</span></div>
                   <div class="stat"><b>6</b><span>Classes</span></div>
                 </div>
 
@@ -604,17 +632,17 @@
                 <div class="card">
                   <div class="feed-item">
                     <div class="dot green"></div>
-                    <div><div class="ft"><b>Eleanor Vance</b> submitted a scoresheet for the 1955 Mercedes-Benz 300SL</div>
+                    <div><div class="ft"><b class="jlink" onclick="openJudge('eleanor')">Eleanor Vance</b> submitted a scoresheet for the 1955 Mercedes-Benz 300SL</div>
                     <div class="fm">Score 96.5 · 9:12 AM</div></div>
                   </div>
                   <div class="feed-item">
                     <div class="dot"></div>
-                    <div><div class="ft"><b>James Whitfield</b> started judging the 1961 Jaguar E-Type</div>
+                    <div><div class="ft"><b class="jlink" onclick="openJudge('james')">James Whitfield</b> started judging the 1961 Jaguar E-Type</div>
                     <div class="fm">9:04 AM</div></div>
                   </div>
                   <div class="feed-item">
                     <div class="dot green"></div>
-                    <div><div class="ft"><b>Margaret Cho</b> submitted a scoresheet for the 1930 Cadillac V-16</div>
+                    <div><div class="ft"><b class="jlink" onclick="openJudge('margaret')">Margaret Cho</b> submitted a scoresheet for the 1930 Cadillac V-16</div>
                     <div class="fm">Score 94.5 · 8:51 AM</div></div>
                   </div>
                 </div>
@@ -812,6 +840,13 @@
               <button class="btn btn-primary" onclick="toast('Form assigned · syncing to 3 judges')">
                 Assign &amp; Push to Judges
               </button>
+
+              <div class="section-label">Judges &amp; Assignments</div>
+              <div style="font-size:11.5px;color:var(--muted);margin:-3px 2px 11px;line-height:1.5;">
+                Every judge and the forms they hold. Tap a judge to see their assigned forms and completed results.
+              </div>
+              <div id="judgesList"></div>
+
               <div style="height:12px;"></div>
             </div>
           </div>
@@ -887,6 +922,32 @@
                 </button>
                 <div style="height:14px;"></div>
               </div>
+            </div>
+          </div>
+
+          <!-- ============ ADMIN: JUDGE DETAIL ============ -->
+          <div class="view" id="v-hj-judge">
+            <div class="appbar">
+              <button class="iconbtn" onclick="go('v-hj-assign')">
+                <svg viewBox="0 0 24 24" class="ic"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="ab-title"><div class="t" id="judgeName">Judge</div><div class="s" id="judgeRole">Role</div></div>
+              <span style="width:34px;"></span>
+            </div>
+            <div class="scroll pad">
+              <div class="jd-head">
+                <div class="ava ava-lg" id="judgeAvatar">&mdash;</div>
+                <div class="statgrid" style="margin:0;flex:1;">
+                  <div class="stat"><b id="judgeStatForms">0</b><span>Forms</span></div>
+                  <div class="stat"><b id="judgeStatCars">0</b><span>Cars</span></div>
+                  <div class="stat"><b id="judgeStatDone">0</b><span>Done</span></div>
+                </div>
+              </div>
+              <div class="section-label">Assigned Forms</div>
+              <div id="judgeForms"></div>
+              <div class="section-label">Completed Scoresheets</div>
+              <div id="judgeCompleted"></div>
+              <div style="height:14px;"></div>
             </div>
           </div>
 
@@ -1593,10 +1654,112 @@
     setTimeout(function(){ el.classList.remove('flash-hl'); },1800);
   }
 
+  /* ---------- judges roster & detail ---------- */
+  var JUDGES=[
+    {id:'eleanor',name:'Eleanor Vance',initials:'EV',role:'Senior Judge · Coachbuilt era',
+      forms:[{name:'Antique Class — Full Judging',type:'Deduction',cars:5,done:1}],
+      completed:[{car:'1955 Mercedes-Benz 300SL',cls:'Antique — Pre-War',score:'96.5'}]},
+    {id:'james',name:'James Whitfield',initials:'JW',role:'Judge · Engines & mechanicals',
+      forms:[{name:'Antique Class — Full Judging',type:'Deduction',cars:5,done:3}],
+      completed:[
+        {car:'1932 Duesenberg Model J',cls:'Antique — Pre-War',score:'96.0'},
+        {car:'1930 Cadillac V-16 Roadster',cls:'Antique — Pre-War',score:'94.5'},
+        {car:'1948 Tucker 48',cls:'Antique — Pre-War',score:'92.0'}]},
+    {id:'margaret',name:'Margaret Cho',initials:'MC',role:'Judge · Coachwork & finish',
+      forms:[{name:'Antique Class — Full Judging',type:'Deduction',cars:5,done:2},
+             {name:'Postwar Classic — Full Judging',type:'Deduction',cars:4,done:0}],
+      completed:[
+        {car:'1937 Bugatti Type 57SC Atalante',cls:'Antique — Pre-War',score:'97.5'},
+        {car:'1930 Cadillac V-16 Roadster',cls:'Antique — Pre-War',score:'94.0'}]},
+    {id:'robert',name:'Robert Delacroix',initials:'RD',role:'Judge · Interiors',
+      forms:[{name:'Postwar Classic — Full Judging',type:'Deduction',cars:6,done:0}],
+      completed:[]},
+    {id:'henry',name:'Henry Castellan',initials:'HC',role:'Chief Class Judge · European Sports',
+      forms:[{name:'Sports & Racing — Preservation',type:'Additive',cars:4,done:2},
+             {name:"People's Choice Ballot",type:'Additive',cars:12,done:5}],
+      completed:[
+        {car:'1961 Jaguar E-Type Series 1',cls:'European Sports',score:'95.0'},
+        {car:'1955 Mercedes-Benz 300SL Gullwing',cls:'European Sports',score:'96.0'}]},
+    {id:'anita',name:'Anita Park',initials:'AP',role:'Apprentice Judge',
+      forms:[{name:'Antique Class — Full Judging',type:'Deduction',cars:5,done:0}],
+      completed:[]}
+  ];
+  function judgeTotals(j){
+    var cars=0,done=0;
+    j.forms.forEach(function(f){ cars+=f.cars; done+=f.done; });
+    return {cars:cars,done:done};
+  }
+  function renderJudges(){
+    var box=document.getElementById('judgesList');
+    if(!box) return;
+    var chev='<svg viewBox="0 0 24 24" class="ic chev"><path d="M9 6l6 6-6 6"/></svg>';
+    box.innerHTML='';
+    JUDGES.forEach(function(j){
+      var tot=judgeTotals(j);
+      var pct=tot.cars?Math.round(tot.done/tot.cars*100):0;
+      var chips=j.forms.map(function(f){ return '<span class="fchip">'+esc(f.name)+'</span>'; }).join('');
+      var card=document.createElement('div');
+      card.className='jcard';
+      card.innerHTML=
+        '<div class="ava">'+esc(j.initials)+'</div>'
+        +'<div class="jc-main">'
+        +'<div class="jc-top"><span class="jc-name">'+esc(j.name)+'</span>'+chev+'</div>'
+        +'<div class="jc-role">'+esc(j.role)+'</div>'
+        +'<div class="jc-forms">'+chips+'</div>'
+        +'<div class="jc-prog"><span class="miniprog"><span style="width:'+pct+'%"></span></span>'
+        +'<span class="jc-prog-label">'+tot.done+' / '+tot.cars+' cars</span></div>'
+        +'</div>';
+      card.addEventListener('click',function(){ openJudge(j.id); });
+      box.appendChild(card);
+    });
+  }
+  function openJudge(id){
+    var j=null;
+    JUDGES.forEach(function(x){ if(x.id===id) j=x; });
+    if(!j) return;
+    var tot=judgeTotals(j);
+    document.getElementById('judgeName').textContent=j.name;
+    document.getElementById('judgeRole').textContent=j.role;
+    document.getElementById('judgeAvatar').textContent=j.initials;
+    document.getElementById('judgeStatForms').textContent=j.forms.length;
+    document.getElementById('judgeStatCars').textContent=tot.cars;
+    document.getElementById('judgeStatDone').textContent=tot.done;
+    var fhtml='';
+    j.forms.forEach(function(f){
+      var pct=f.cars?Math.round(f.done/f.cars*100):0;
+      var pill=f.done===0?'<span class="pill grey">Not started</span>'
+        :(f.done>=f.cars?'<span class="pill green">Complete</span>':'<span class="pill gold">In progress</span>');
+      fhtml+='<div class="jform"><div class="jform-top">'
+        +'<div><div class="jform-name">'+esc(f.name)+'</div>'
+        +'<div class="jform-sub">'+esc(f.type)+' scoring · '+f.cars+' cars</div></div>'
+        +pill+'</div>'
+        +'<div class="miniprog"><span style="width:'+pct+'%"></span></div>'
+        +'<div class="jform-prog-label">'+f.done+' of '+f.cars+' cars scored</div></div>';
+    });
+    document.getElementById('judgeForms').innerHTML=fhtml;
+    var chk='<svg viewBox="0 0 24 24" class="ic"><path d="M5 13l4 4L19 7"/></svg>';
+    var chtml='';
+    if(j.completed.length===0){
+      chtml='<div class="jempty">No scoresheets submitted yet.</div>';
+    } else {
+      j.completed.forEach(function(c){
+        chtml+='<div class="jcomplete"><div class="jc-tick">'+chk+'</div>'
+          +'<div class="jc-car"><div class="jc-cn">'+esc(c.car)+'</div>'
+          +'<div class="jc-cl">'+esc(c.cls)+'</div></div>'
+          +'<div class="jc-score">'+esc(c.score)+'</div></div>';
+      });
+    }
+    document.getElementById('judgeCompleted').innerHTML=chtml;
+    go('v-hj-judge');
+    var at=document.querySelector('#tabsAdmin .tab[data-go="v-hj-assign"]');
+    if(at) at.classList.add('active');
+  }
+
   /* ---------- init ---------- */
   DEDS.forEach(function(id){ paintSlider(document.getElementById(id)); });
   recalc();
   renderBuilder();
+  renderJudges();
 </script>
 
 </body>
